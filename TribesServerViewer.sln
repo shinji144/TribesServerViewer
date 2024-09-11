@@ -5,6 +5,16 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueryLib", "QueryLib\QueryLib.csproj", "{9FDD9DD9-8282-4251-8D00-EC5F4C08D66F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebViewer.AppHost", "WebViewer\WebViewer.AppHost\WebViewer.AppHost.csproj", "{0FE984B5-9CE3-4ADE-B97B-0E4870E71AB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebViewer.ServiceDefaults", "WebViewer\WebViewer.ServiceDefaults\WebViewer.ServiceDefaults.csproj", "{914EB8E8-1A04-4170-AD16-6AFC5AC600C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebViewer.ApiService", "WebViewer\WebViewer.ApiService\WebViewer.ApiService.csproj", "{546426EF-96C7-4824-A575-405C0189D343}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebViewer.Web", "WebViewer\WebViewer.Web\WebViewer.Web.csproj", "{0C69495A-2C67-4F48-BE77-A22829BBE3BF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebViewer.Tests", "WebViewer\WebViewer.Tests\WebViewer.Tests.csproj", "{E8D40CCD-872D-4252-A044-E49ABE2C7E6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +25,26 @@ Global
 		{9FDD9DD9-8282-4251-8D00-EC5F4C08D66F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FDD9DD9-8282-4251-8D00-EC5F4C08D66F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FDD9DD9-8282-4251-8D00-EC5F4C08D66F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FE984B5-9CE3-4ADE-B97B-0E4870E71AB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE984B5-9CE3-4ADE-B97B-0E4870E71AB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FE984B5-9CE3-4ADE-B97B-0E4870E71AB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE984B5-9CE3-4ADE-B97B-0E4870E71AB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{914EB8E8-1A04-4170-AD16-6AFC5AC600C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{914EB8E8-1A04-4170-AD16-6AFC5AC600C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{914EB8E8-1A04-4170-AD16-6AFC5AC600C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{914EB8E8-1A04-4170-AD16-6AFC5AC600C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{546426EF-96C7-4824-A575-405C0189D343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{546426EF-96C7-4824-A575-405C0189D343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{546426EF-96C7-4824-A575-405C0189D343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{546426EF-96C7-4824-A575-405C0189D343}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C69495A-2C67-4F48-BE77-A22829BBE3BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C69495A-2C67-4F48-BE77-A22829BBE3BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C69495A-2C67-4F48-BE77-A22829BBE3BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C69495A-2C67-4F48-BE77-A22829BBE3BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8D40CCD-872D-4252-A044-E49ABE2C7E6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8D40CCD-872D-4252-A044-E49ABE2C7E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8D40CCD-872D-4252-A044-E49ABE2C7E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8D40CCD-872D-4252-A044-E49ABE2C7E6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
