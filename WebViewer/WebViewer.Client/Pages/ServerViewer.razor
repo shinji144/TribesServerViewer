@@ -1,0 +1,26 @@
+﻿@page "/serverviewer"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>ServerViewer</PageTitle>
+
+<h1>ServerViewer</h1>
+
+<button @onclick="RefreshList">Refresh</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Address</th>
+            <th>Port</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var server in _servers)
+        {
+            <tr>
+                <td>@server.Address</td>
+                <td>@server.Port</td>
+            </tr>
+        }
+    </tbody>
+</table>
