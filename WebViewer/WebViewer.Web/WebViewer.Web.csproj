@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="8.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\QueryLib\QueryLib.csproj" />
     <ProjectReference Include="..\WebViewer.ServiceDefaults\WebViewer.ServiceDefaults.csproj" />
   </ItemGroup>
 

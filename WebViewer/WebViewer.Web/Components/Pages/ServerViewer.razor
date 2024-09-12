@@ -1,0 +1,175 @@
+﻿@page "/serverviewer"
+@using System.Net
+@using QueryLib
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@* @rendermode InteractiveWebAssembly *@
+@rendermode InteractiveServer
+
+@* <style>
+    table {
+        max-width: 800px; /* Limit the table's width */
+        margin: 0 auto; /* Center the table */
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 4px 6px; /* Reduced padding for compactness */
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        vertical-align: top;
+        font-size: 14px; /* Smaller font size */
+    }
+
+    th {
+        background-color: #f2f2f2;
+        white-space: normal; /* Allows text to wrap in headers */
+        word-wrap: break-word; /* Ensures long words break and wrap */
+    }
+
+    .table-button {
+        height: 28px; /* Reduced button size */
+        width: 28px;
+        padding: 0;
+        margin-left: 2px; /* Small margin between buttons */
+    }
+
+    .table-input {
+        width: 40px; /* Reduced input width */
+    }
+
+    .compact-column {
+        display: flex;
+        align-items: center;
+        gap: 4px; /* Small gap between elements */
+    }
+</style> *@
+
+@* <style>
+    .table-button {
+        height: 28px;
+        width: 28px;
+        padding: 0;
+        margin-left: 2px;
+    }
+
+    .table-input {
+        width: 40px;
+    }
+
+    .compact-column {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+</style> *@
+
+
+<PageTitle>ServerViewer</PageTitle>
+
+<h1>ServerViewer</h1>
+
+<button @onclick="RefreshList" disabled="@isRefreshing" >Refresh</button>
+
+@if (errorMessage != null)
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@if (isRefreshing)
+{
+    <p>Loading...</p>
+}
+
+@* <table class="table">
+    <thead>
+        <tr>
+            <th width="200px">Server Name</th>
+            <th>Ping</th>
+            <th>Mission Type</th>
+            <th width="100px">Mission Name</th>
+            <th>Players</th>
+            <th>Cpu Speed</th>
+            <th>Address</th>
+            <th>Version</th>
+            <th>Server Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (_servers != null && _servers.Any())
+        {
+            @foreach (var server in _servers)
+            {
+                <tr>
+                    <td>@server.Name</td>
+                    <td>@server.Ping</td>
+                    <td>@server.MissionType</td>
+                    <td>@server.MissionName</td>
+                    <td>@server.PlayersFmt</td>
+                    <td>@server.CpuSpeed</td>
+                    <td>@server.Address</td>
+                    <td>@server.Version</td>
+                    <td>@server.Mod</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table> *@
+
+@if (_servers != null && _servers.Any())
+{
+    <QuickGrid Items="_servers.AsQueryable()" Class="table">
+        <PropertyColumn Title="Server Name" Property="@(server => server.Name)" Sortable="true"/>
+        <PropertyColumn Title="Ping" Property="@(server => server.Ping)" Sortable="true" />
+        <PropertyColumn Title="Mission Type" Property="@(server => server.MissionType)" Sortable="true" />
+        <PropertyColumn Title="Mission Name" Property="@(server => server.MissionName)"Sortable="true" />
+        <PropertyColumn Title="Players" Property="@(server => server.PlayersFmt)" Sortable="true" IsDefaultSortColumn ="true" InitialSortDirection="SortDirection.Descending" />
+        <PropertyColumn Title="Cpu Speed" Property="@(server => server.CpuSpeed)" Sortable="true" />
+        <PropertyColumn Title="Address" Property="@(server => server.Address)" Sortable="true" />
+        <PropertyColumn Title="Version" Property="@(server => server.Version)" Sortable="true"/>
+        <PropertyColumn Title="Mod" Property="@(server => server.Mod)" Sortable="true" />
+    </QuickGrid>
+}
+
+@code {
+    private bool isRefreshing = false;
+    private string? errorMessage;
+    private List<GameServer>? _servers = new();
+    private async Task RefreshList()
+    {
+        Console.WriteLine("RefreshList()");
+        if (isRefreshing) 
+            return; // Prevent spamming clicks
+        isRefreshing = true;
+
+        try
+        {
+            Console.WriteLine("getting servers");
+
+            this._servers = await QueryLib.MasterServerClient.GetServersList();
+            
+            // Console.WriteLine($"got {this._servers.Count} servers");
+            // StateHasChanged();
+            // var tasks = new List<Task>();
+            // foreach(var server in _servers)
+            // {
+            //     tasks.Add(server.RefreshAsync());
+            //     Console.WriteLine($"Server: {server.Name}");
+            // }
+
+            // await Task.WhenAll(tasks);
+            StateHasChanged();
+            Console.WriteLine("refreshed all!");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to refresh data: {ex.Message}";
+        }
+        finally
+        {
+            await Task.Delay(3000); // Disable button for 3 seconds
+            isRefreshing = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -1,5 +1,11 @@
 ﻿using System.Net.Sockets;
 using System.Net;
+using Polly.Timeout;
+using Polly;
+using System.Threading;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Diagnostics;
 
 namespace QueryLib;
 
@@ -23,36 +29,146 @@ public class MasterServerClient
 	private readonly string _masterServerIp;
 	private readonly int _masterServerPort;
 
-	public static async Task<IPEndPoint[]> GetServersList()
+	public static async Task<List<GameServer>?> GetServersList()
 	{
 		var masters = await MasterServerClient.GetMasterEntries().ToListAsync();
 		//Console.WriteLine(masters);
 
-		IPEndPoint[] serversList = null;
+		IPEndPoint[] addresses = null;
+        List<GameServer> servers = null;
 
 		foreach (var m in masters)
 		{
 			var client = new MasterServerClient(m.AddressList.First().ToString(), 28000);
-
+            
 			var request = Task.Run(() =>
 			{
 				return client.RequestServerList().ToArray();
 			});
 			var timeout = Task.Delay(500);
 
-			Console.WriteLine(m.HostName);
-			await Task.WhenAny(request, timeout);
+            Debug.WriteLine($"using master {m.HostName} ({client._masterServerIp}:{client._masterServerPort})");
+
+            await Task.WhenAny(request, timeout);
+
 			//found a working master, use this one
 			if (request.Result.Length > 0)
 			{
-				serversList = request.Result;
-				break;
+                addresses = request.Result;
+                servers = await QueryGameServersAsync(addresses, CancellationToken.None).ToListAsync();
+                //servers = new List<GameServer>();
+                //await foreach (var gameServer in QueryGameServersAsync(addresses, CancellationToken.None))
+                //{
+                //    // Process each game server (e.g., log, save, or handle the result)
+                //    Debug.WriteLine($"Processed server at {gameServer.ServerAddress}");
+                //    servers.Add(gameServer);
+                //}
+
+                break;
 			}
 		}
-		return serversList;
+        servers = servers?.OrderByDescending(s => s.Players).ToList();
+		return servers;
 	}
 
-	public MasterServerClient(string masterServerIp, int masterServerPort)
+	private static readonly TimeSpan _Timeout = TimeSpan.FromSeconds(3); //Timeout in seconds
+	private static readonly TimeSpan _RateLimitDuration = TimeSpan.FromMinutes(1); // Visit no more than _MaxWebsites every X minutes
+	private const int _RetryAttempts = 3; //How many retries to perform
+	private const int _RetryBackoff = 2; //Backoff exponent in seconds
+	private const int _RateLimitTasks = 50; //Limit to X concurrent tasks
+	private const int _RateLimitQueue = 100; //Allow queuing up to 20 actions
+
+	public static async IAsyncEnumerable<GameServer> QueryGameServersAsync(IPEndPoint[] serverAddresses, [EnumeratorCancellation] CancellationToken cancellationToken)
+	{
+        Debug.WriteLine("QueryGameServersAsync()");
+  //      var timeoutPolicy = Policy.TimeoutAsync(_Timeout);
+
+		//var retryPolicy = Policy
+		//	.Handle<Exception>() // Specify the exception(s) to handle
+		//	.WaitAndRetryAsync(
+		//		_RetryAttempts, // Retry up to X times
+		//		retryAttempt => TimeSpan.FromSeconds(Math.Pow(_RetryBackoff, retryAttempt)), // Exponential backoff
+		//		(exception, timeSpan, retryCount, context) =>
+		//		{
+		//			Console.WriteLine($"Retry {retryCount} in {timeSpan.TotalSeconds} seconds due to {exception.Message}");
+		//		});
+
+		//var policies = Policy.WrapAsync(retryPolicy, timeoutPolicy);
+
+		//var rateLimitSemaphore = new SemaphoreSlim(_RateLimitQueue); // limit to X items
+
+        Debug.WriteLine("made policy and semaphore");
+        // Process each appId in batches respecting the rate limit
+        foreach (var serverAddress in serverAddresses)
+		{
+            Debug.WriteLine("starting " + serverAddress.ToString());
+            // Check if cancellation has been requested before processing the next appId
+            cancellationToken.ThrowIfCancellationRequested();
+
+			//await rateLimitSemaphore.WaitAsync(cancellationToken); // Pass the cancellation token
+
+			// Call the method that handles processing with the token
+			//var gameInfo = await GetGameInfoWithPoliciesAsync(serverAddress, policies, rateLimitSemaphore, cancellationToken);
+            var gameInfo = GetGameInfo(serverAddress, cancellationToken);
+            if (gameInfo != null)
+			{
+                Debug.WriteLine("yielding " + serverAddress.ToString());
+                yield return gameInfo;
+			}
+		}
+	}
+
+	static async Task<GameServer> GetGameInfoWithPoliciesAsync(IPEndPoint serverAddress, IAsyncPolicy policies, SemaphoreSlim rateLimitSemaphore, CancellationToken cancellationToken)
+	{
+		try
+		{
+			// Execute the policies with the cancellation token
+			return await policies.ExecuteAsync(ct => GetGameInfoAsync(serverAddress, ct), cancellationToken);
+		}
+		catch (TimeoutRejectedException)
+		{
+			Console.WriteLine($"Request for serverAddress {serverAddress} timed out.");
+			return null;
+		}
+		catch (OperationCanceledException)
+		{
+			Console.WriteLine($"Request for serverAddress {serverAddress} was cancelled.");
+			return null; // Return null if the operation is cancelled
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error fetching data for serverAddress {serverAddress}: {ex.Message}");
+			return null;
+		}
+		finally
+		{
+			// Ensure the semaphore is released even if an exception occurs
+			rateLimitSemaphore.Release();
+		}
+	}
+
+	// Example method for fetching game info (this would be implemented in your code)
+	static async Task<GameServer> GetGameInfoAsync(IPEndPoint serverAddress, CancellationToken cancellationToken)
+	{
+		// Simulate async work with cancellation support
+		//await Task.Delay(1000, cancellationToken); // Simulate a network call
+        var gameServer = new GameServer(serverAddress);
+        gameServer.Refresh();
+        return gameServer;
+        //return  // Replace with actual game info fetching logic
+    }
+
+    static GameServer GetGameInfo(IPEndPoint serverAddress, CancellationToken cancellationToken)
+    {
+        // Simulate async work with cancellation support
+        //await Task.Delay(1000, cancellationToken); // Simulate a network call
+        var gameServer = new GameServer(serverAddress);
+        gameServer.Refresh();
+        return gameServer;
+        //return  // Replace with actual game info fetching logic
+    }
+
+    public MasterServerClient(string masterServerIp, int masterServerPort)
 	{
 		this._masterServerIp = masterServerIp;
 		this._masterServerPort = masterServerPort;
