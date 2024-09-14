@@ -228,7 +228,7 @@ public class MasterServerClient
 			//the client's count of how many queries its sent to master server
 			//byte[] requestCommand1 = new byte[] { 0x10, 0x03, 0xff, 0x00, 0x12, 0x00, 0x00, 0x00 };
 			//byte[] requestCommand2 = new byte[] { 0x10, 0x03, 0xff, 0x00, 0x03, 0x00, 0x00, 0x00 };
-			//byte[] requestCommand3 = new byte[] { 0x10, 0x03, 0xff, 0x00, 0x93, 0x00, 0x00, 0x00 };
+			//byte[] requestCommand3 = new byte[] { 0x10, 0x03, 0xff, 0x00, 0x93, 0x00, 0x00, 0x00 }; 
 			//byte[] requestCommand4 = new byte[] { 0x10, 0x03, 0xff, 0x00, 0xe3, 0x00, 0x00, 0x00 };
 
 			//this seems to be all we need. as far as I can tell, the bytes represent:
@@ -269,12 +269,13 @@ public class MasterServerClient
 			return Enumerable.Empty<IPEndPoint>();
 		}
 
-		//Console.WriteLine(response);
-		//master server response header is 8 bytes
-		//var header = new Header(response[..8]);
-		//Console.WriteLine(header);
+        //Console.WriteLine(response);
+        //master server response header is 8 bytes
+        //var header = new Header(response[..8]);
+        //Console.WriteLine(header);
 
-		var byteSeparators = response.Select((value, index) => new { value, index })
+        //master server results seem to be separated by 0x06 at the end of each byte
+        var byteSeparators = response.Select((value, index) => new { value, index })
 						.Where(x => x.value == 0x06)
 						.Select(x => x.index);
 		//Console.WriteLine(byteSeparators);

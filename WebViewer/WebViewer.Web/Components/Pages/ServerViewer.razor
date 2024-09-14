@@ -5,6 +5,8 @@
 
 @* @rendermode InteractiveWebAssembly *@
 @rendermode InteractiveServer
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
 
 @* <style>
     table {
@@ -135,6 +137,12 @@
     private bool isRefreshing = false;
     private string? errorMessage;
     private List<GameServer>? _servers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await this.RefreshList();
+    }
+
     private async Task RefreshList()
     {
         Console.WriteLine("RefreshList()");

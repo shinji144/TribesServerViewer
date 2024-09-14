@@ -43,7 +43,7 @@ namespace QueryLib
 
                 // Request server info
 
-                byte[] request = [0x62, 0x01, 0x02];
+                byte[] request = [0x62, 0x01, 0x07];
                 this._udpClient.Send(request, request.Length);
                 IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                 byte[] response = this._udpClient.Receive(ref remoteEndPoint);
